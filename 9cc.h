@@ -13,6 +13,7 @@
 //トークンの種類
 typedef enum {
 	TK_RESERVED,	//記号
+	TK_IDENT,		//識別子
 	TK_NUM, 	//変数トークン
 	TK_EOF,		//入力の終わりを表すトークン
 }TokenKind;
@@ -77,7 +78,10 @@ Node *new_node(NodeKind kind);
 Node *new_binary(NodeKind kind, Node *lhs, Node *rhs);
 Node *new_num(int val);
 
+Node *program();
+Node *smt();
 Node *expr();
+Node *assign();
 Node *equality();
 Node *relational();
 Node *add();
@@ -86,6 +90,8 @@ Node *unary();
 Node *primary();
 
 
+/*--グローバル変数の宣言-*/
+extern Node *code[100];
 
 
 //
