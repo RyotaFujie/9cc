@@ -90,18 +90,21 @@ Token *tokenize() {
 			p++;
 			continue;
 		}
-		
+
+		//比較演算子
 		if (startswith(p, "==") || startswith(p, "!=") || startswith(p, "<=") || startswith(p, ">=")) {
 			cur = new_token(TK_RESERVED, cur, p, 2);
 			p += 2;
 			continue;
 		}
 
+		//四則演算子
 		if (strchr("+-*/()<>",*p)) {
 			cur = new_token(TK_RESERVED, cur, p++, 1);
 			continue;
 		}
 
+		//10進数
 		if (isdigit(*p)) {
 			cur = new_token(TK_NUM, cur, p, 0);
 			char *q = p;
@@ -109,6 +112,14 @@ Token *tokenize() {
 			cur->len = p - q;
 			continue;
 		}
+
+		//変数
+		if ('a' <= *p && *p <= 'z') {
+			cur = new_token(TK_IDENT, cur, p++);
+			cur->len = 1;
+			continue;
+		}
+
 
 		error_at(p, "invalid token");
 	}
