@@ -40,6 +40,15 @@ bool consume(char *op) {
 	return true;
 }
 
+//変数を判定してそのトークンを返す関数
+Token *consume_ident() {
+	//変数は1文字で固定しているから，token->lenは1
+	if (token->kind != TK_IDENT || 1 != token->len)
+		return NULL;
+	//token = token->next;
+	return token;
+}
+
 //次のトークンが期待している記号の時には，トークンを一つ読み進める．
 //それ以外の場合にはエラーを報告する，
 void expect(char *op) {
@@ -99,7 +108,7 @@ Token *tokenize() {
 		}
 
 		//四則演算子
-		if (strchr("+-*/()<>",*p)) {
+		if (strchr("+-*/()<>=;",*p)) {
 			cur = new_token(TK_RESERVED, cur, p++, 1);
 			continue;
 		}
@@ -115,7 +124,7 @@ Token *tokenize() {
 
 		//変数
 		if ('a' <= *p && *p <= 'z') {
-			cur = new_token(TK_IDENT, cur, p++);
+			cur = new_token(TK_IDENT, cur, p++, 1);
 			cur->len = 1;
 			continue;
 		}

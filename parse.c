@@ -4,7 +4,7 @@
 
 
 /*--グローバル変数の定義--*/
-//なし
+Node *code[100];
 
 /*--関数の定義--*/
 Node *new_node(NodeKind kind) {
@@ -26,9 +26,42 @@ Node *new_num(int val) {
 	return node;
 }
 
+Node *new_ident(int offset){
+	Node *node = new_node(ND_LVAR);
+	node->offset = offset;
+	return node;
+}
+
+
+//
+//再帰降下構文解析の処理
+//
+
+
+void program(){
+	int i = 0;
+	for(;!at_eof();){
+		code[i++] = stmt();
+	}
+	code[i] = NULL;
+}
+
+Node *stmt(){
+	Node *node = expr();
+	expect(";");
+	return node;
+}
+
 //expr = equality
-Node *expr() {
-	return equality();
+Node *expr(){
+	return assign();
+}
+
+Node *assign(){
+	Node *node = equality();
+	if (consume("="))
+		node = new_binary(ND_ASSIGN, node, assign());
+	return node;
 }
 
 //equality = relational ("==" relational | "!=" relational)*
@@ -106,6 +139,42 @@ Node *primary() {
 		expect(")");
 		return node;
 	}
+
+	//ここに変数の分岐を追加する
+	//必要なのが，トークン文字列が変数かどうか判定する関数が必要
+	//あと，strを参照するためのトークン型が必要
+	Token *tok = consume_ident();
+	if (tok) {
+		//オフセットを計算し，nodeに格納する
+		int offset = (tok->str[0] - 'a' + 1) * 8;
+		Node *node = new_ident(offset);
+		token = token->next;
+		return node;
+	}
 	
 	return new_num(expect_number());
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

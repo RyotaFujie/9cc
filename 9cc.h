@@ -32,6 +32,7 @@ struct Token {
 void error(char *fmt, ...);
 void error_at(char *loc, char *fmt, ...);
 bool consume(char *op);
+Token *consume_ident();			//変数を判定して，文字列を返す関数
 void expect(char *op);
 int expect_number();
 bool at_eof();
@@ -54,6 +55,8 @@ extern Token *token;
 /*--構造体，共用体の定義--*/
 
 typedef enum {
+	ND_ASSIGN,	// 代入記号
+	ND_LVAR,	// ローカル変数
 	ND_ADD,
 	ND_SUB,
 	ND_MUL,
@@ -67,10 +70,11 @@ typedef enum {
 
 typedef struct Node Node;
 struct Node {
-	NodeKind kind;
-	Node *lhs;
-	Node *rhs;
-	int val;
+	NodeKind kind;	//ノードの型
+	Node *lhs;		//左辺
+	Node *rhs;		//右辺
+	int val;		//kindがND_NUMのみ使用
+	int offset;		//kindがND_LVARのみ使用
 };
 
 /*--関数の宣言--*/
@@ -78,8 +82,8 @@ Node *new_node(NodeKind kind);
 Node *new_binary(NodeKind kind, Node *lhs, Node *rhs);
 Node *new_num(int val);
 
-Node *program();
-Node *smt();
+void program();
+Node *stmt();
 Node *expr();
 Node *assign();
 Node *equality();
@@ -91,7 +95,7 @@ Node *primary();
 
 
 /*--グローバル変数の宣言-*/
-extern Node *code[100];
+extern Node *code[];
 
 
 //
@@ -99,6 +103,7 @@ extern Node *code[100];
 //
 
 /*--関数の宣言--*/
+void gen_lval(Node *node);
 void gen(Node *node);
 
 
