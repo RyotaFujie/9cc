@@ -28,6 +28,16 @@ struct Token {
 	int len;	//トークンの文字数
 };
 
+//出現した変数の連結リスト
+typedef struct LVar LVar;
+//ローカル変数の型
+struct LVar {
+	LVar *next;
+	char *name;
+	int len;
+	int offset;
+};
+
 /*--関数の宣言-*/
 void error(char *fmt, ...);
 void error_at(char *loc, char *fmt, ...);
@@ -38,6 +48,7 @@ int expect_number();
 bool at_eof();
 Token *new_token(TokenKind kind, Token *cur, char *str, int len);
 bool startswith(char *p, char *q);
+LVar *find_Lvar(Token *tok);
 Token *tokenize();
 
 /*--グローバル変数の宣言-*/
@@ -81,6 +92,10 @@ struct Node {
 Node *new_node(NodeKind kind);
 Node *new_binary(NodeKind kind, Node *lhs, Node *rhs);
 Node *new_num(int val);
+//変数ノードを追加する関数
+LVar *new_Lvar();
+void init_Lvar(LVar *var, char *name, int len, int offset);
+LVar *add_Lvar(char *name, int len, int offset);
 
 void program();
 Node *stmt();

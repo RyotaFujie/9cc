@@ -33,6 +33,8 @@ void error_at(char *loc, char *fmt, ...) {
 
 //次のトークンが期待している記号の時は，トークンの一つ読み進めて
 //真を返す，それ以外の場合には偽を返す．
+//tokenのstrはuser_inputで渡された文字列の一部のアドレスでしかないから
+//文字列を比較するときは，文字数が必須 -> memcmpを使う理由
 bool consume(char *op) {
 	if (token->kind != TK_RESERVED || strlen(op) != token->len || memcmp(token->str, op, token->len))
 		return false;
@@ -42,8 +44,7 @@ bool consume(char *op) {
 
 //変数を判定してそのトークンを返す関数
 Token *consume_ident() {
-	//変数は1文字で固定しているから，token->lenは1
-	if (token->kind != TK_IDENT || 1 != token->len)
+	if (token->kind != TK_IDENT)
 		return NULL;
 	//token = token->next;
 	return token;
@@ -86,6 +87,8 @@ bool startswith(char *p, char *q) {
 }
 
 
+
+
 //入力文字列pをトークナイズしてそれを返す．
 Token *tokenize() {
 	char *p = user_input;
@@ -123,11 +126,27 @@ Token *tokenize() {
 		}
 
 		//変数
+		//ここで複数の文字を判定する必要がある
+		//ループして文字以外が出現するまで回す？
+
 		if ('a' <= *p && *p <= 'z') {
-			cur = new_token(TK_IDENT, cur, p++, 1);
-			cur->len = 1;
+			
+			//char *v = p;	//変数目名の開始アドレス
+			int i;
+			
+			for (i = 0; 'a' <= *p && *p <= 'z'; i++, p++){}
+				/*
+				for(a; b; c){...}の場合，bがfalseでも{...}の後にcが実行される．
+				for分で最後に一回多くカウントされるから，文字数は0始まりで大丈夫
+				*/
+				
+
+
+			cur = new_token(TK_IDENT, cur, p-i, i);	//pはfor文で既にインクリメントされている
+			cur->len = i;
 			continue;
 		}
+		//for-elseを使えれば，もっと分かりやすく書けたかも
 
 
 		error_at(p, "invalid token");
