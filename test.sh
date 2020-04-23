@@ -51,8 +51,11 @@ assert 3 "a=1;1+1+a;"
 assert 2 "a=1;a+1;"
 assert 2 "a=1;a;a=2;"
 assert 1 "a=b=1;"
-assert 1 "a=b=1;a+b/2;"
+assert 1 "a=b=1;a+b/2;a;"
 assert 3 "foo=3;"
 assert 3 "foo=1;bar=2;fizz=foo+bar;fizz;"
+assert 1 "returnx=1;"
+assert 4 "return 4;"
+assert 1 "foo=1;bar=2;return foo;"
 
 echo OK

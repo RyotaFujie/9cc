@@ -7,7 +7,10 @@
 パーサでローカル変数リストを更新するため，new_Lvar,init_Lvar,add_Lvarを実装した．
  add_Lvarでリストの最後尾に新しいノードを追加するために，リストの末尾を常に記憶するlocallastを
 グローバル変数として追加した．
-u-
+
+stmt()で,returnノードをnew_binary(.., ..., expr*());としていたが，
+returnノードは左に繋ぐべきなので，new_binary(NodeKind kind, Node *lhs, Node *rhs)を使わずに
+その場でノードを作り初期化する．
 */
 
 
@@ -91,7 +94,17 @@ void program(){
 }
 
 Node *stmt(){
-	Node *node = expr();
+	Node *node;
+
+	if (consume_keytoken(TK_RETURN)) {
+		node = new_binary(ND_RETURN, NULL, expr());
+		/*
+		returnノードを親ノードとし，左をnull 右を右値を繋げる
+		*/
+	}else {
+		node = expr();
+	}
+
 	expect(";");
 	return node;
 }
@@ -187,8 +200,8 @@ Node *primary() {
 	//ここに変数の分岐を追加する
 	//必要なのが，トークン文字列が変数かどうか判定する関数が必要
 	//あと，strを参照するためのトークン型が必要
-	Token *tok = consume_ident();
-	if (tok) {
+	Token *tok;
+	if (tok = consume_ident()) {
 
 		//変数リストから一致する変数を検索
 		LVar *lvar = find_Lvar(tok);

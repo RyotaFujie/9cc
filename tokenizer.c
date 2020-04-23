@@ -46,8 +46,16 @@ bool consume(char *op) {
 Token *consume_ident() {
 	if (token->kind != TK_IDENT)
 		return NULL;
+	//paeseのprimaryでトークンを更新している
 	//token = token->next;
 	return token;
+}
+
+bool consume_keytoken(TokenKind kind) {
+	if (token->kind != kind)
+		return false;
+	token = token->next;
+	return true;
 }
 
 //次のトークンが期待している記号の時には，トークンを一つ読み進める．
@@ -87,6 +95,10 @@ bool startswith(char *p, char *q) {
 }
 
 
+int is_alnum(char c) {
+ 	return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || ('0' <= c && c <= '9') || (c == '_');
+}
+
 
 
 //入力文字列pをトークナイズしてそれを返す．
@@ -124,24 +136,26 @@ Token *tokenize() {
 			cur->len = p - q;
 			continue;
 		}
+		
+		//return
+		if (strncmp(p, "return", 6) == 0 && !is_alnum(p[6])) {
+			cur = new_token(TK_RETURN, cur, p, 6);
+			p+=6;
+			continue;
+		}
+
 
 		//変数
 		//ここで複数の文字を判定する必要がある
 		//ループして文字以外が出現するまで回す？
 
-		if ('a' <= *p && *p <= 'z') {
-			
-			//char *v = p;	//変数目名の開始アドレス
-			int i;
-			
+		if ('a' <= *p && *p <= 'z') {		
+			int i;			
 			for (i = 0; 'a' <= *p && *p <= 'z'; i++, p++){}
 				/*
 				for(a; b; c){...}の場合，bがfalseでも{...}の後にcが実行される．
 				for分で最後に一回多くカウントされるから，文字数は0始まりで大丈夫
 				*/
-				
-
-
 			cur = new_token(TK_IDENT, cur, p-i, i);	//pはfor文で既にインクリメントされている
 			cur->len = i;
 			continue;

@@ -16,6 +16,7 @@ typedef enum {
 	TK_IDENT,		//識別子
 	TK_NUM, 	//変数トークン
 	TK_EOF,		//入力の終わりを表すトークン
+	TK_RETURN,	//リターントークン
 }TokenKind;
 
 //トークン型
@@ -43,11 +44,13 @@ void error(char *fmt, ...);
 void error_at(char *loc, char *fmt, ...);
 bool consume(char *op);
 Token *consume_ident();			//変数を判定して，文字列を返す関数
+bool consume_keytoken(TokenKind kind);
 void expect(char *op);
 int expect_number();
 bool at_eof();
 Token *new_token(TokenKind kind, Token *cur, char *str, int len);
 bool startswith(char *p, char *q);
+int is_alnum(char c);
 LVar *find_Lvar(Token *tok);
 Token *tokenize();
 
@@ -77,6 +80,7 @@ typedef enum {
 	ND_LT,
 	ND_LE,
 	ND_NUM,
+	ND_RETURN,
 } NodeKind;
 
 typedef struct Node Node;

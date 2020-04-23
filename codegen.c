@@ -39,6 +39,14 @@ void gen(Node *node) {
 			printf("	mov [rax], rdi\n");
 			printf("	push rdi\n");
 			return;
+		case ND_RETURN:
+			//returnの右値は右ノードに繋がれている
+			gen(node->rhs);
+			printf("	pop rax\n");
+			printf("	mov rsp, rbp\n");
+			printf("	pop rbp\n");
+			printf("	ret\n");
+			return;
 		default:
 			break;
 	}
